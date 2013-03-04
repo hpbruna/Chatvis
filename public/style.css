@@ -1,0 +1,40 @@
+.message {
+	position: absolute;
+}
+
+#datafield {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	width: 300px;
+}
+.red {
+	color: white;
+	background-color: red;}
+
+.green {
+	color: white;
+	background-color: green;}
+
+.blue {
+	color: white;
+	background-color: blue;}
+
+
+.magenta {
+	color: white;
+	background-color: magenta;}
+
+
+.purple {
+	color: white;
+	background-color: purple;}
+
+
+.plum {
+	color: white;
+	background-color: plum;}
+
+.orange {
+	color: white;
+	background-color: orange;}
