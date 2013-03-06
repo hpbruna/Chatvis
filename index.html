@@ -8,7 +8,10 @@
 
 </head>
 <body>
+<div id="pagecover">
+</div> 
 
+<div id="content">
 <h1>Brainy</h1>
 
 
@@ -20,13 +23,17 @@
 	// on load of page
 	$(function(){
 
+
+
 		var socket = io.connect('http://localhost:8080');
 
 	// on connection to server, ask for user's name with an anonymous callback
 	socket.on('connect', function(){
 		// call the server-side function 'adduser' and send one parameter (value of prompt)
+		$('#pagecover').fadeOut(1000);
+		$('#content').fadeIn(10000);
 		socket.emit('adduser', prompt("What's your name?"));
-	});
+	
 
 	// listener, whenever the server emits 'updatechat', this updates the chat body
 	socket.on('updatechat', function (username, usercolor, data, MouseXposition, MouseYposition) {
@@ -37,7 +44,7 @@
 	socket.on('updateusers', function(data) {
 		$('#users').empty();
 		$.each(data, function(key, value) {
-			$('#users').append('<div>' + key + '</div>');
+			$('#users').append(key + ' ');
 		});
 	});
 
@@ -52,7 +59,6 @@
 
 
 		$(document).mousemove(function(e){
-      $('#users').html(e.pageX +', '+ e.pageY);
       MouseXposition = e.pageX;
       MouseYposition = e.pageY;
 
@@ -70,18 +76,21 @@
 			socket.emit('sendchat', message, MouseXposition, MouseYposition);
 			}
 		});
-	});
+	}); // end socket.on
+	}); // end document.ready
+
 
 </script>
-<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-	<b>USERS</b>
-	<div id="users"></div>
-</div>
-<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+
 	<div id="conversation"></div>
 	<input id="datafield"/>
+
+<div id="userbox">
+	Aan boord:
+	<div id="users"></div>
 </div>
 
+</div>
 
 </body>
 </html>
