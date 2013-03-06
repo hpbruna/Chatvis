@@ -4,7 +4,10 @@
 
 <link rel="stylesheet" type="text/css" href="style.css" />
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+
+
 
 </head>
 <body>
@@ -36,9 +39,38 @@
 	
 
 	// listener, whenever the server emits 'updatechat', this updates the chat body
-	socket.on('updatechat', function (username, usercolor, data, MouseXposition, MouseYposition) {
-		$('body').append('<div style="left:' + MouseXposition + 'px; top: ' + MouseYposition + 'px;" class="message ' + usercolor + '"><b>'+username + ':</b> ' + data + '<br></div>');
+	socket.on('updatechat', function (username, usercolor, messageID, data, MouseXposition, MouseYposition) {
+		$('body').append('<div ID="' + messageID + '" style="left:' + MouseXposition + 'px; top: ' + MouseYposition + 'px;" class="message ' + usercolor + '">' + data + '<br></div>');
+
+		$( ".message").draggable({
+start: function() {
+	// bij de start nog een mooi kleurtje?
+},
+drag: function() {
+	//tijdens ook nog een symbooltje?
+},
+stop: function() {
+var finalposition = $(this).position();
+ var messageID = $(this).attr('id');
+            var xPos = finalposition.left;
+            var yPos = finalposition.top;
+
+            sendUpdatedMessage(messageID, xPos, yPos);
+}
+});
+
 	});
+
+
+var sendUpdatedMessage = function(messageID, xPos, yPos) {
+	// tell server to execute 'sendchat' and send along one parameter
+			socket.emit('sendUpdatedMessage', messageID, MouseXposition, MouseYposition);
+}
+
+socket.on('updateMessage', function(messageID, xPos, yPos) {
+		$('#' + messageID).offset({ top: yPos, left: xPos})
+	});
+
 
 	// listener, whenever the server emits 'updateusers', this updates the username list
 	socket.on('updateusers', function(data) {
@@ -76,6 +108,9 @@
 			socket.emit('sendchat', message, MouseXposition, MouseYposition);
 			}
 		});
+
+		
+
 	}); // end socket.on
 	}); // end document.ready
 
