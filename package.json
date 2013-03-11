@@ -1,16 +1,16 @@
 {
      "name": "Brainy",
      "subdomain": "brainy",
-    "scripts": {
-      "start": "node app.js"
-    },
+     "scripts": {
+          "start": "node app.js"
+     },
      "description": "Brainstorming by draggable chat",
-     "version": "0.0.1",
+     "version": "0.0.1-3",
      "engines": {
-      "node": "v0.8.x"
-    },
+          "node": "v0.8.x"
+     },
      "dependencies": {
-        "express": "2.4.6",
-        "socket.io": "0.8.4"
+          "express": "2.4.6",
+          "socket.io": "0.8.4"
      }
 }

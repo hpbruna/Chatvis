@@ -5,6 +5,7 @@ var messageID = 0;
 
 var colorclasses = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
 
+//app.listen(80);
 app.listen(8080);
 
 // routing
