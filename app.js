@@ -2,6 +2,7 @@ var express = require('express');
 var app = require('express').createServer();
 var io = require('socket.io').listen(app);
 var messageID = 0;
+var messages = [];
 
 var colorclasses = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
 
@@ -20,34 +21,40 @@ app.get('/', function (req, res) {
 var usernames = {};
 
 io.sockets.on('connection', function (socket) {
+	console.log(messages);
 
-	// when the client emits 'sendchat', this listens and executes
-	socket.on('sendchat', function (data, MouseXposition, MouseYposition) {
-		// we tell the client to execute 'updatechat' with 2 parameters
-		//console.log(socket);
+	// give a new connection the existing messages
+	var value;
+	for (value in messages) {
+    if (messages.hasOwnProperty(value)) {
+        io.sockets.emit('sendnewchat', messages[value])}; 
+    }
+
+	
+
+	// new chat message comes from client
+	socket.on('newchat', function (data, MouseXposition, MouseYposition) {
+		
 		messageID++
-		io.sockets.emit('updatechat', socket.username, socket.usercolor, messageID, data, MouseXposition, MouseYposition);
+
+		messages[messageID] = {id: messageID, content: data, user: socket.username, xPos: MouseXposition, yPos: MouseYposition};
+		
+		io.sockets.emit('sendnewchat', messages[messageID]);
 	});
 
 	// when the client emits 'adduser', this listens and executes
 	socket.on('adduser', function(username){
-		// we store the username in the socket session for this client
 		socket.username = username;
-		// add the client's username to the global list
-		socket.usercolor =  colorclasses.shift();
-
 		usernames[username] = username;
-		// echo to client they've connected
-		//socket.emit('updatechat', 'SERVER', 'you have connected');
-		// echo globally (all clients) that a person has connected
-		//socket.broadcast.emit('updatechat', 'SERVER', username + ' has connected');
-		// update the list of users in chat, client-side
 		io.sockets.emit('updateusers', usernames);
 	});
 
 
 	
 	socket.on('sendUpdatedMessage', function(messageID, xPos, yPos){
+		messages[messageID].xPos = xPos; //update message object
+		messages[messageID].yPos = yPos; //update message object
+
 		io.sockets.emit('updateMessage', messageID, xPos, yPos);
 	});
 

@@ -6,6 +6,8 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script src="/js/client.js"></script>
+
 
 
 
@@ -15,111 +17,7 @@
 </div> 
 
 <div id="content">
-<h1>Brainy</h1>
-
-
-
-
-<script>
-	
-
-	// on load of page
-	$(function(){
-
-
-
-		var socket = io.connect('http://localhost:8080');
-
-		//var socket = io.connect('http://brainy.jit.su:80');
-
-
-
-	// on connection to server, ask for user's name with an anonymous callback
-	socket.on('connect', function(){
-		// call the server-side function 'adduser' and send one parameter (value of prompt)
-		$('#pagecover').fadeOut(1000);
-		$('#content').fadeIn(10000);
-		socket.emit('adduser', prompt("What's your name?"));
-	
-
-	// listener, whenever the server emits 'updatechat', this updates the chat body
-	socket.on('updatechat', function (username, usercolor, messageID, data, MouseXposition, MouseYposition) {
-		$('body').append('<div ID="' + messageID + '" style="left:' + MouseXposition + 'px; top: ' + MouseYposition + 'px;" class="message ' + usercolor + '">' + data + '<br></div>');
-
-		$( ".message").draggable({
-start: function() {
-	// bij de start nog een mooi kleurtje?
-},
-drag: function() {
-	//tijdens ook nog een symbooltje?
-},
-stop: function() {
-var finalposition = $(this).position();
- var messageID = $(this).attr('id');
-            var xPos = finalposition.left;
-            var yPos = finalposition.top;
-
-            sendUpdatedMessage(messageID, xPos, yPos);
-}
-});
-
-	});
-
-
-var sendUpdatedMessage = function(messageID, xPos, yPos) {
-	// tell server to execute 'sendchat' and send along one parameter
-			socket.emit('sendUpdatedMessage', messageID, MouseXposition, MouseYposition);
-}
-
-socket.on('updateMessage', function(messageID, xPos, yPos) {
-		$('#' + messageID).offset({ top: yPos, left: xPos})
-	});
-
-
-	// listener, whenever the server emits 'updateusers', this updates the username list
-	socket.on('updateusers', function(data) {
-		$('#users').empty();
-		$.each(data, function(key, value) {
-			$('#users').append(key + ' ');
-		});
-	});
-
-
-		var MouseXposition = 1;
-		var MouseYposition = 1;
-
-		$(document.body).on('keydown', function(e) {
-    
-        $('#datafield').focus();
-});
-
-
-		$(document).mousemove(function(e){
-      MouseXposition = e.pageX;
-      MouseYposition = e.pageY;
-
-   }); 
-
-		
-
-		// when the client hits ENTER on their keyboard
-		$('#datafield').keypress(function(e) {
-			if(e.which == 13) {
-			var message = $('#datafield').val();
-			$('#datafield').val('');
-		
-			// tell server to execute 'sendchat' and send along one parameter
-			socket.emit('sendchat', message, MouseXposition, MouseYposition);
-			}
-		});
-
-		
-
-	}); // end socket.on
-	}); // end document.ready
-
-
-</script>
+<h1>Chatstorm</h1>
 
 	<div id="conversation"></div>
 	<input id="datafield"/>
