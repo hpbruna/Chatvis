@@ -1,10 +1,9 @@
 var express = require('express');
 var app = require('express').createServer();
 var io = require('socket.io').listen(app);
+var usernames = {};
 var messageID = 0;
 var messages = [];
-
-var colorclasses = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
 
 //app.listen(80);
 app.listen(8080);
@@ -17,8 +16,6 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
-// usernames which are currently connected to the chat
-var usernames = {};
 
 io.sockets.on('connection', function (socket) {
 	console.log(messages);
@@ -30,43 +27,44 @@ io.sockets.on('connection', function (socket) {
         io.sockets.emit('sendnewchat', messages[value])}; 
     }
 
-	
-
 	// new chat message comes from client
 	socket.on('newchat', function (data, MouseXposition, MouseYposition) {
-		
 		messageID++
-
-		messages[messageID] = {id: messageID, content: data, user: socket.username, xPos: MouseXposition, yPos: MouseYposition};
-		
+		messages[messageID] = {id: messageID, content: data, user: socket.username, xPos: MouseXposition, yPos: MouseYposition, likes: 0};
 		io.sockets.emit('sendnewchat', messages[messageID]);
 	});
 
-	// when the client emits 'adduser', this listens and executes
+	
+	socket.on('sendUpdatedMessage', function(messageID, xPos, yPos){
+		messages[messageID].xPos = xPos; //update message object
+		messages[messageID].yPos = yPos; //update message object
+		io.sockets.emit('updateMessage', messageID, xPos, yPos);
+	});
+
+	socket.on('sendUpdatedLikes', function(messageID){
+		messages[messageID].likes = messages[messageID].likes + 1; //update message object
+		var likes = messages[messageID].likes;
+		io.sockets.emit('updateLikes', messageID, likes);
+	});
+
+	socket.on('sendDeleteMessage', function(messageID){
+		delete messages[messageID]; //delete message object
+		io.sockets.emit('deleteMessage', messageID);
+	});
+
+
+	// client adds user, user is send to all clients
 	socket.on('adduser', function(username){
 		socket.username = username;
 		usernames[username] = username;
 		io.sockets.emit('updateusers', usernames);
 	});
 
-
-	
-	socket.on('sendUpdatedMessage', function(messageID, xPos, yPos){
-		messages[messageID].xPos = xPos; //update message object
-		messages[messageID].yPos = yPos; //update message object
-
-		io.sockets.emit('updateMessage', messageID, xPos, yPos);
-	});
-
-
-
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function(){
-		// remove the username from global usernames list
+		// remove the username en update the client userlists
 		delete usernames[socket.username];
-		// update list of users in chat, client-side
 		io.sockets.emit('updateusers', usernames);
-		// echo globally that this client has left
-		//socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+		
 	});
 });
