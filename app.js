@@ -19,12 +19,12 @@ app.get('/', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
 	console.log(messages);
-
+	
 	// give a new connection the existing messages
 	var value;
 	for (value in messages) {
     if (messages.hasOwnProperty(value)) {
-        io.sockets.emit('sendnewchat', messages[value])}; 
+        socket.emit('sendnewchat', messages[value])}; 
     }
 
 	// new chat message comes from client
