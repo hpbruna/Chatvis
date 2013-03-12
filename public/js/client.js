@@ -40,7 +40,7 @@ var sendUpdatedLikes;
 	        socket.on('sendnewchat', function (message) {
 	        	console.log(message);
 	        	var fontsize = 100 + (message.likes * 10) + '%';
-	            $('body').append('<div class="message" ID="' + message.id + '" style="left:' + message.xPos + 'px; top: ' + message.yPos + 'px; font-size: ' + fontsize +'">' + message.content + '</div>');
+	            $('#board').append('<div class="message" ID="' + message.id + '" style="left:' + message.xPos + 'px; top: ' + message.yPos + 'px; font-size: ' + fontsize +'">' + message.content + '</div>');
 	            
 	            $(".message").on({
 click: function(){
@@ -132,6 +132,8 @@ socket.on('deleteMessage', function(messageID) {
 	                socket.emit('newchat', message, MouseXposition, MouseYposition);
 	            }
 	        });
+
+
 	    }); // end socket.on
 	}); // end document.ready
 	
