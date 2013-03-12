@@ -39,7 +39,8 @@ var sendUpdatedLikes;
 	       // new chat comes from server
 	        socket.on('sendnewchat', function (message) {
 	        	console.log(message);
-	            $('body').append('<div class="message" ID="' + message.id + '" style="left:' + message.xPos + 'px; top: ' + message.yPos + 'px;">' + message.content + '</div>');
+	        	var fontsize = 100 + (message.likes * 10) + '%';
+	            $('body').append('<div class="message" ID="' + message.id + '" style="left:' + message.xPos + 'px; top: ' + message.yPos + 'px; font-size: ' + fontsize +'">' + message.content + '</div>');
 	            
 	            $(".message").on({
 click: function(){
