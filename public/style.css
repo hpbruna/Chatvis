@@ -16,11 +16,11 @@ body{
 	display: none;
 }
 
-.message {
+.idea {
 	position: absolute;
 }
 
-#datafield {
+#ideafield {
 	position: fixed;
 	bottom: 0px;
 	left: 0px;

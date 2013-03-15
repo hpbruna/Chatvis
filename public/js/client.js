@@ -1,139 +1,142 @@
 	// on load of page
-	$(function () {
-	    var socket = io.connect('http://localhost:8080');
+	$(function() {
+		//"use strict";
 
-var sendUpdatedMessage;
-var sendUpdatedLikes;
-	    var controls = $('#controls');
-	    var deletebutton = $('#deletebutton');
-	    var likebutton = $('#likebutton');
-	    
-	    likebutton.on('click', function () {
-	    	var id = likebutton.parents(".message").attr("id");
-	    	sendUpdatedLikes(id);
-	    })
-
-	    deletebutton.on('click', function () {
-	    	var message = likebutton.parents(".message");
-	    	var id = message.attr("id");
-	    	message.detach(); //data still exists in object, else controlsobject would be deleted
-	    	senddeletemessage(id);
-	    })
-
-	    var senddeletemessage = function(messageID) {
-	    	 // tell server to delete message from object
-	            socket.emit('sendDeleteMessage', messageID);
-		}
-
-		
-
-	    //var socket = io.connect('http://brainy.jit.su:80');
-
-	    // on connection to server, ask for user's name with an anonymous callback
-	    socket.on('connect', function () {
-	        // call the server-side function 'adduser' and send one parameter (value of prompt)
-	        $('#pagecover').fadeOut(1000);
-	        $('#content').fadeIn(10000);
-	        socket.emit('adduser', prompt("Met wie hebben we het genoegen?"));
-
-	       // new chat comes from server
-	        socket.on('sendnewchat', function (message) {
-	        	console.log(message);
-	        	var fontsize = 100 + (message.likes * 10) + '%';
-	            $('#board').append('<div class="message" ID="' + message.id + '" style="left:' + message.xPos + 'px; top: ' + message.yPos + 'px; font-size: ' + fontsize +'">' + message.content + '</div>');
-	            
-	            $(".message").on({
-click: function(){
-//
-},
-mouseenter: function(){
-$(this).append(controls);
-},
-mouseleave: function(){
-//$(controls).remove();
-}
-});
-
-	            $(".message").draggable({
-	                start: function () {
-	                    // bij de start nog een mooi kleurtje?
-	                },
-	                drag: function () {
-	                    //tijdens ook nog een symbooltje?
-	                },
-	                stop: function () {
-	                    var finalposition = $(this).position();
-	                    var messageID = $(this).attr('id');
-	                    var xPos = finalposition.left;
-	                    var yPos = finalposition.top;
-	                    sendUpdatedMessage(messageID, xPos, yPos);
-	                }
-	            });
-	        });
-
-	        sendUpdatedMessage = function (messageID, xPos, yPos) {
-	            // tell server to execute 'sendchat' and send along one parameter
-	            socket.emit('sendUpdatedMessage', messageID, MouseXposition, MouseYposition);
-	        }
-
-	        sendUpdatedLikes = function (messageID) {
-	            // tell server to execute 'sendchat' and send along one parameter
-	            socket.emit('sendUpdatedLikes', messageID);
-	        }
-
-	        socket.on('updateMessage', function (messageID, xPos, yPos) {
-	        	$('#' + messageID).offset({
-	                top: yPos,
-	                left: xPos
-	            });
-	            });
-
-	             socket.on('updateLikes', function (messageID, likes) {
-	        	var fontsize = 100 + (likes * 10) + '%';
-	            $('#' + messageID).css('font-size', fontsize);
-	        	});
+		var socket = io.connect('http://localhost:8080');
+		//var socket = io.connect('http://brainy.jit.su:80');
 
 
-socket.on('deleteMessage', function(messageID) {
-	    	 // detach message from DOM
-	          $('#' + messageID+ '.message').detach();
-		 });
+		var controls = $('#controls');
+		var board = $('#board');
+		var deletebutton = $('#deletebutton');
+		var likebutton = $('#likebutton');
+		var dislikebutton = $('#dislikebutton');
+		var mouseXposition = 100;
+		var mouseYposition = 100;
 
 
+		likebutton.on('click', function() {
+			var id = likebutton.parents(".idea").attr("id");
+			var increase = 1;
+			sendUpdatedLikes(id, increase);
+		});
 
-	         socket.on('deletemessage', function(messageID) {
-	    	 // detach message from DOM
-	           $('.message #' + messageID).detach();
-		 });
+		dislikebutton.on('click', function() {
+			var id = likebutton.parents(".idea").attr("id");
+			var increase = -1;
+			sendUpdatedLikes(id, increase);
+		});
+
+		deletebutton.on('click', function() {
+			var idea = likebutton.parents(".idea");
+			var id = idea.attr("id");
+			idea.detach(); //data still exists in object, else controlsobject would be deleted
+			sendDeleteIdea(id);
+		});
+
+		var sendDeleteIdea = function(ideaID) {
+			// tell server to delete idea from object
+			socket.emit('sendDeleteIdea', ideaID);
+		};
+
+		socket.on('connect', function() {
+
+			//fade out the spinner
+			$('#pagecover').fadeOut(1000);
+			$('#content').fadeIn(10000);
+
+			socket.emit('addUser', prompt("Met wie hebben we het genoegen?"));
+
+			// listeners voor server events
+
+			socket.on('sendNewIdea', function(idea) {
+
+				var fontsize = 100 + (idea.likes * 30) + '%';
+				board.append('<div class="idea" ID="' + idea.id + '" style="left:' + idea.xPos + 'px; top: ' + idea.yPos + 'px; font-size: ' + fontsize + '">' + idea.content + '</div>');
+				$(".idea").on({
+					click: function() {
+						// wat wordt het klikgedrag
+					},
+					mouseenter: function() {
+						$(this).append(controls);
+					},
+					mouseleave: function() {
+						//controls.detach();
+				}
+				});
+
+			$(".idea").draggable({
+				start: function() {
+					// bij de start nog een mooi kleurtje?
+				},
+				drag: function() {
+					//tijdens ook nog een symbooltje?
+				},
+				stop: function() {
+					var finalposition = $(this).position();
+					var ideaID = $(this).attr('id');
+					var xPos = finalposition.left;
+					var yPos = finalposition.top;
+					sendUpdatedIdea(ideaID, xPos, yPos);
+				}
+			});
+			});
+
+		socket.on('updateIdea', function(ideaID, xPos, yPos) {
+			$('#' + ideaID).offset({
+				top: yPos,
+				left: xPos
+			});
+		});
+
+		socket.on('deleteIdea', function(ideaID) {
+			// detach idea from DOM
+			$('#' + ideaID + '.idea').detach();
+		});
+
+		socket.on('updateLikes', function(ideaID, likes) {
+			var fontsize = 100 + (likes * 30) + '%';
+			$('#' + ideaID).css('font-size', fontsize);
+		});
+
+		socket.on('updateUsers', function(data) {
+			$('#users').empty();
+			$.each(data, function(key, value) {
+				$('#users').append(key + ' ');
+			});
+		});
 
 
-	        // listener, whenever the server emits 'updateusers', this updates the username list
-	        socket.on('updateusers', function (data) {
-	            $('#users').empty();
-	            $.each(data, function (key, value) {
-	                $('#users').append(key + ' ');
-	            });
-	        });
-	        var MouseXposition = 1;
-	        var MouseYposition = 1;
-	        $(document.body).on('keydown', function (e) {
-	            $('#datafield').focus();
-	        });
-	        $(document).mousemove(function (e) {
-	            MouseXposition = e.pageX;
-	            MouseYposition = e.pageY;
-	        });
-	        // when the client hits ENTER on their keyboard
-	        $('#datafield').keypress(function (e) {
-	            if (e.which == 13) {
-	                var message = $('#datafield').val();
-	                $('#datafield').val('');
-	                // tell server to execute 'sendchat' and send along one parameter
-	                socket.emit('newchat', message, MouseXposition, MouseYposition);
-	            }
-	        });
+		// triggers to server
+
+		sendUpdatedIdea = function(ideaID, xPos, yPos) {
+			// tell server to update idea-object with position and send updated idea to clients.
+			socket.emit('sendUpdatedIdea', ideaID, xPos, yPos);
+		};
+		sendUpdatedLikes = function(ideaID, increase) {
+			// tell server to update Likes in idea-object and send updated object to clients.
+			socket.emit('sendUpdatedLikes', ideaID, increase);
+		};
 
 
-	    }); // end socket.on
+		// typing and sending the idea
+		$(document.body).on('keydown', function() {
+			$('#ideafield').focus(); // makes that all typing is set for the idea.
+		});
+
+		$(document).mousemove(function(e) {
+			mouseXposition = e.pageX;
+			mouseYposition = e.pageY;
+		});
+
+		// when the client hits ENTER on their keyboard
+		$('#ideafield').keypress(function(e) {
+			if (e.which === 13) {
+				var idea = $('#ideafield').val();
+				$('#ideafield').val('');
+				socket.emit('newIdea', idea, mouseXposition, mouseYposition);
+			}
+		});
+		}); // end socket.on
 	}); // end document.ready
 	
