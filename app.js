@@ -4,8 +4,10 @@
  var io = require('socket.io').listen(app);
  var usernames = {};
  var ideaID = 0;
- var ideas = [];
- var boards = [];
+ var ideas = {};
+ var boards = {};
+ var util = require('util'); //debug only
+
 
  //app.listen(80);
  app.listen(8080);
@@ -18,18 +20,12 @@
  });
 
  io.sockets.on('connection', function(socket) {
-     // give a new connection all the existing ideas
-     var value;
-     for (value in ideas) {
-         if (ideas.hasOwnProperty(value)) {
-             socket.emit('sendNewIdea', ideas[value]);
-         }
-     }
+
 
      // new idea comes from client
      socket.on('newIdea', function(data, mouseXposition, mouseYposition) {
          ideaID++;
-         ideas[ideaID] = {
+         boards[socket.room][ideaID] = {
              id: ideaID,
              content: data,
              user: socket.username,
@@ -39,26 +35,31 @@
          };
 
          //send idea to everyone is the same room as the sender.
-         io.sockets. in (socket.room).emit('sendNewIdea', ideas[ideaID]);
+         io.sockets. in (socket.room).emit('sendNewIdea', boards[socket.room][ideaID]);
+
+
+         console.log(util.inspect(boards, false, null));
+
+
      });
 
-     // idea is updated
+     // idea is updated 
      socket.on('sendUpdatedIdea', function(ideaID, xPos, yPos) {
-         ideas[ideaID].xPos = xPos; //update Idea object
-         ideas[ideaID].yPos = yPos; //update Idea object
+         boards[socket.room][ideaID].xPos = xPos; //update Idea object
+         boards[socket.room][ideaID].yPos = yPos; //update Idea object
          io.sockets. in (socket.room).emit('updateIdea', ideaID, xPos, yPos);
      });
 
      // idea is liked
      socket.on('sendUpdatedLikes', function(ideaID, increase) {
-         ideas[ideaID].likes = ideas[ideaID].likes + increase; //update Idea object
-         var likes = ideas[ideaID].likes;
+         boards[socket.room][ideaID].likes = boards[socket.room][ideaID].likes + increase; //update Idea object
+         var likes = boards[socket.room][ideaID].likes;
          io.sockets. in (socket.room).emit('updateLikes', ideaID, likes);
      });
 
      // idea is deleted
      socket.on('sendDeleteIdea', function(ideaID) {
-         delete ideas[ideaID]; //delete Idea object
+         delete boards[socket.room][ideaID]; //delete Idea object
          io.sockets. in (socket.room).emit('deleteIdea', ideaID);
      });
 
@@ -68,28 +69,45 @@
 
          //create a board or connect to existing board
          if (hash !== 0) {
-            console.log(hash);
-             socket.room = hash;
+             socket.room = hash.substr(1); //deletes # sign from beginning of string
+
+             if (typeof boards[socket.room] === 'undefined') {
+                 boards[socket.room] = {};
+                 boards[socket.room].usernames = {};
+             } else {
+                 // give a new connection all the existing ideas if a board exists
+                 var value;
+                 for (value in boards[socket.room]) {
+                    if (value !== 'usernames') { //these are not messages.
+                     console.log('value: ' + value);
+                     socket.emit('sendNewIdea', boards[socket.room][value]);
+                 } // end check for usernames
+                 } // end for loop
+
+             }
 
          } else {
              var now = new Date().getTime();
              socket.room = boardname + now;
+             boards[socket.room] = {};
+             boards[socket.room].usernames = {};
 
          }
 
-         
 
-         usernames[username] = username;
+         boards[socket.room].usernames[username] = username;
 
          socket.join(socket.room);
-         io.sockets. in (socket.room).emit('updateUsers', usernames);
+         io.sockets. in (socket.room).emit('updateUsers', boards[socket.room].usernames);
+
+
      });
 
      // when the client disconnects
      socket.on('disconnect', function() {
          // remove the username en update the client userlists
-         delete usernames[socket.username];
+         delete boards[socket.room].usernames[socket.username];
          socket.leave(socket.room);
-         io.sockets.emit('updateUsers', usernames);
+         io.sockets.emit('updateUsers', boards[socket.room].usernames);
      });
  });
