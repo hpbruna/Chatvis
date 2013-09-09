@@ -9,9 +9,9 @@
  var util = require('util'); //debug only
 
 
- //app.listen(80);
- app.listen(8080);
- io.set('log level', 2);
+ app.listen(80);
+ //app.listen(8080);
+ //io.set('log level', 2);
 
  // routing
  app.use(express.static(__dirname + '/public'));
@@ -36,9 +36,6 @@
 
          //send idea to everyone is the same room as the sender.
          io.sockets. in (socket.room).emit('sendNewIdea', boards[socket.room][ideaID]);
-
-
-         console.log(util.inspect(boards, false, null));
 
 
      });
@@ -79,7 +76,7 @@
                  var value;
                  for (value in boards[socket.room]) {
                     if (value !== 'usernames') { //these are not messages.
-                     console.log('value: ' + value);
+                    
                      socket.emit('sendNewIdea', boards[socket.room][value]);
                  } // end check for usernames
                  } // end for loop
@@ -91,6 +88,7 @@
              socket.room = boardname + now;
              boards[socket.room] = {};
              boards[socket.room].usernames = {};
+             socket.emit('updateHash', socket.room);
 
          }
 
@@ -105,6 +103,7 @@
 
      // when the client disconnects
      socket.on('disconnect', function() {
+        
          // remove the username en update the client userlists
          delete boards[socket.room].usernames[socket.username];
          socket.leave(socket.room);

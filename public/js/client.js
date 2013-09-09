@@ -2,8 +2,8 @@
 	$(function() {
 		//"use strict";
 
-		var socket = io.connect('http://localhost:8080');
-		//var socket = io.connect('http://brainy.jit.su:80');
+		//var socket = io.connect('http://localhost:8080');
+		var socket = io.connect('http://chatvis.jit.su:80');
 
 
 		var controls = $('#controls');
@@ -13,6 +13,16 @@
 		var dislikebutton = $('#dislikebutton');
 		var mouseXposition = 100;
 		var mouseYposition = 100;
+
+
+		
+
+		$("#dialog").dialog({ autoOpen: false });
+
+
+$('#infolink').click(function() {
+    $('#dialog').dialog('open');
+});
 
 
 		likebutton.on('click', function() {
@@ -46,7 +56,7 @@
 			$('#content').fadeIn(10000);
 
 
-			var username = prompt("Met wie hebben we het genoegen?")
+			var username = prompt("What's your name?")
 
 			if (window.location.hash) {
 				var hash = window.location.hash;
@@ -62,13 +72,13 @@
 			socket.on('sendNewIdea', function(idea) {
 
 				var fontsize = 100 + (idea.likes * 30) + '%';
-				board.append('<div class="idea" ID="' + idea.id + '" style="left:' + idea.xPos + 'px; top: ' + idea.yPos + 'px; font-size: ' + fontsize + '">' + idea.content + '</div>');
+				board.append('<div class="idea" ID="' + idea.id + '" style="left:' + idea.xPos + 'px; top: ' + idea.yPos + 'px; font-size: ' + fontsize + '"><div class="ideacontent">' + idea.content + '</div></div>');
 				$(".idea").on({
 					click: function() {
 						// wat wordt het klikgedrag
 					},
 					mouseenter: function() {
-						$(this).append(controls);
+						$(this).prepend(controls);
 					},
 					mouseleave: function() {
 						//controls.detach();
@@ -97,6 +107,11 @@
 					top: yPos,
 					left: xPos
 				});
+			});
+
+			socket.on('updateHash', function(hash) {
+				window.location.hash = hash;
+				_gaq.push(['_trackPageview',location.pathname + location.search  + location.hash]);
 			});
 
 			socket.on('deleteIdea', function(ideaID) {
@@ -147,6 +162,9 @@
 					socket.emit('newIdea', idea, mouseXposition, mouseYposition);
 				}
 			});
+
+			
+
 		}); // end socket.on
 	}); // end document.ready
 	

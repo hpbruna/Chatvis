@@ -2,7 +2,14 @@
 <html>
 <head>
 
+
+      <meta name="description" content="ChatVis is a brainstorming tool that makes idea generation easier. It's a surprisingly powerful way to create, organize and share your ideas among teammembers">
+      <meta property="og:image" content="/images/logocatvis.png"/>
+
 <link rel="stylesheet" type="text/css" href="style.css" />
+<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
@@ -17,13 +24,17 @@
 </div> 
 
 <div id="content">
-<h1>Chatstorm</h1>
+<h1>Chatvis.com</h1>
+<h2>Brainstorming by draggable chat</h2>
+<div id="infolink">INFO</div>
 
 	<div id="conversation"></div>
 	<input id="ideafield"/>
 
+
+
 <div id="userbox">
-	Aan boord:
+	Participating:
 	<div id="users"></div>
 </div>
 
@@ -33,12 +44,46 @@
 
 </div>
 
+<div class="hidden">
 <div id="controls">
-	<a id="deletebutton" title="delete">X</a>
-	<a id="likebutton" title="Bigger">+</a>
-	<a id="dislikebutton" title="Smaller">-</a>
+	<a id="deletebutton" class="ui-icon ui-icon-trash" title="delete">X</a>
+	<a id="likebutton" class="ui-icon ui-icon-plus" title="Bigger">+</a>
+	<a id="dislikebutton" class="ui-icon ui-icon-minus" title="Smaller">-</a>
+	<a id="dragbutton" class="ui-icon ui-icon-arrow-4" title="Drag">drag</a>
+</div>
 </div>
 
+<div id="dialog" title="Chatvis.com">
+<p>Chatvis.com is a tool we use at <a target="_blank" href="http://www.brunabruna.nl">Bruna & Bruna</a> for idea generation and concepting. If you like it, please use it and give us feedback so we can improve it.</p>
+
+<ul>
+	<li>You can create a new board or visit a shared link that brings you to an existing board.</li>
+	<li>You can chat ideas and drag them to group them with other ideas.</li>
+	<li>Ideas are placed where your mouse is.</li>
+	<li>You can make them bigger, smaller or delete them.</li>
+	<li>You can share the URL in the locationbar of your browser with other people so they can work on the same board.</li>
+</ul>
+
+<p>
+WARNING: Chatvis.com is in BETA, <strong>so we take absolutely no responsibily for your data.</strong> If you create a board it could be there the next day, the next week, but it could also be lost in an hour. This is because were are still experimenting with the tool. The code and database are changed constantly.</p>
+
+<p>Please, send your feedback to chatvis@brunabruna.nl</p>
+
+</div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-39593051-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 
 </body>
 </html>

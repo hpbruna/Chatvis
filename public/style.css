@@ -37,16 +37,25 @@ position: fixed;
 	display: inline;
 }
 
+
 #controls {
-	margin: -20px 0 0 -15px;
-	background-color: lightgrey;
-}
-#deletebutton {
-	display: block;
-	padding: 5px;
+	float: left;
+    margin: -5px 0 0 -80px;
 }
 
-#likebutton {
-	display: block;
-	padding: 5px;
+#controls a{
+	 cursor: pointer;
+    float: left;
+    margin: 2px;
+    position: relative;
+}
+
+
+
+#infolink {
+
+}
+
+.hidden {
+	visibility: hidden;
 }
